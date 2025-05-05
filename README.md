@@ -1,12 +1,3 @@
 # Heat equation solver
 
-### An API for solving 1D heat equation
-
-
-### Installation
-
-
-### Documentation
-
-
-### Example usage
+### API for solving the 1D heat equation
