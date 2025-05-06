@@ -3,28 +3,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-"""Variabler jag vill skicka in i klassobjektet:
-f, l, r, M, N, x_int, t_int, D
-
-Variabler jag ej vill skicka in:
-m, n, h, k, """
-
 class HeatObj:
+    """Class that creates a heatobject.
+    
+    Attributes:
+        f (Callable): initial condition for equation
+        l (Callable): left boundary condition
+        r (Callable): right boundary condition
+        x_int (list or n.array): x interval
+        t_int (list or n.array): t interval
+        D (int): diffusion constant
+        h (float): step size in x-direction
+        k (float): step size in t-direction
+        m
+        n
+        """
 
-    def __init__(self, f, l, r, M, N, x_int, t_int, D, h=1, k=1):
+    def __init__(self, D, f, l, r, M, N, x_int, t_int, h=1, k=1):
+        self.D = D
         self.f = f
         self.l = l
         self.r = r
         self.x_int = x_int
         self.t_int = t_int
-        self.D = D
-        self.h = h
         self.m = M - 1
         self.n = N
+        self.h = h
         self.k = k
 
 
     def create_solution_matrix(self):
+        """Creates an (m x n+1) np.array filled with zeros, the solution matrix.
+        Parameters:
+            None
+        Returns:
+            w (np.array): the solution matrix"""
         w = np.zeros((self.m, self.n + 1))
         return w
     
@@ -36,7 +49,6 @@ class HeatObj:
         x_points = self.x_int[0] + np.arange(1, self.m+1) * self.h
         inital_condition = self.f(x_points)
         return inital_condition
-    
 
     def _boundary_condition(self, g):
         t_points = self.t_int[0] + np.arange(self.n+1) * self.k
@@ -56,6 +68,12 @@ class HeatObj:
         return A
     
     def one_step(self, w, j):
+        """Takes one step with the forward difference method. Returns the updated solution matrix.
+        Parameters:
+            w (np.array): solution matrix to update
+            j (int): current column of solutin matrix
+        Returns:
+            updated solution matrix"""
 
         left_side = self._boundary_condition(self.l)
         right_side = self._boundary_condition(self.r)
@@ -68,6 +86,12 @@ class HeatObj:
         return A @ w[:, j] + b
 
     def solve(self):
+        """Solves the equation using forward differences. Initializes the solution matrix, 
+        sets the initial conditions and updates the solution. Inserts the boundary values.
+        Parameters:
+            None
+        Returns:
+            w_comp (n.array): complete solution"""
         w = self.create_solution_matrix()
         self._update_step_size()
 
@@ -85,14 +109,27 @@ class HeatObj:
 
     
 def main():
-    f = lambda x: np.sin(2*np.pi*x)**2
-    l = lambda t: 0*t
-    r = lambda t: 0*t
+    f = lambda x: np.cosh(x)
+    l = lambda t: 2*np.exp(2*t)
+    r = lambda t: (np.exp(2) + 1) * np.exp(2*t - 1)
+    D = 2
     x_int = np.array([0, 1])
-    t_int = np.array([0, 0.5])
+    t_int = np.array([0, 1])
+
+    dx = 0.1
+    dt = 0.002
+
+    M = (x_int[1] - x_int[0]) / dx
+    N = (t_int[1] - t_int[0]) / dt
+
+    M = np.round(M)
+    N = np.round(N)
+
+    M = int(M)
+    N = int(N)
 
 
-    equation = HeatObj(f, l, r, 10, 100, x_int, t_int, D=1)
+    equation = HeatObj(D, f, l, r, M, N, x_int, t_int)
     solution = equation.solve()
 
 
@@ -106,7 +143,7 @@ def main():
     ax.plot_surface(X, T, solution, cmap='viridis')
     ax.set_xlabel('x')
     ax.set_ylabel('t')
-    ax.set_zlim(-1, 1)
+    # ax.set_zlim(-1, 1)
     ax.view_init(30, 60)
     plt.show()
 
