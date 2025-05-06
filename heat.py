@@ -1,4 +1,4 @@
-# API:t
+# API:
 import numpy as np
 import matplotlib.pyplot as plt
 
