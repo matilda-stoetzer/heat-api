@@ -12,6 +12,12 @@ class HeatEquation:
         self.x_int = x_int
         self.t_int = t_int
 
+    def initial_condition(self):
+        pass
+
+    def boundary_condition(self):
+        pass
+
 class HeatSolve:
 
     def __init__(self, equation, M, N):
@@ -99,43 +105,7 @@ class HeatSolve:
 
     
 def main():
-    f = lambda x: np.cosh(x)
-    l = lambda t: 2*np.exp(2*t)
-    r = lambda t: (np.exp(2) + 1) * np.exp(2*t - 1)
-    D = 2
-    x_int = np.array([0, 1])
-    t_int = np.array([0, 1])
-
-    dx = 0.1
-    dt = 0.002
-
-    M = (x_int[1] - x_int[0]) / dx
-    N = (t_int[1] - t_int[0]) / dt
-
-    M = np.round(M)
-    N = np.round(N)
-
-    M = int(M)
-    N = int(N)
-
-
-    equation = HeatObj(D, f, l, r, M, N, x_int, t_int)
-    solution = equation.solve()
-
-
-    x = np.linspace(x_int[0], x_int[1], equation.m + 2)
-    t = np.linspace(t_int[0], t_int[1], equation.n + 1)
-    T, X = np.meshgrid(t, x)
-
-    # 3D plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, T, solution, cmap='viridis')
-    ax.set_xlabel('x')
-    ax.set_ylabel('t')
-    # ax.set_zlim(-1, 1)
-    ax.view_init(30, 60)
-    plt.show()
+    pass
 
 
 if __name__ == '__main__':
