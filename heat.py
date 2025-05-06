@@ -1,35 +1,25 @@
-# API:
+# API:t
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class HeatObj:
-    """Class that creates a heatobject.
-    
-    Attributes:
-        f (Callable): initial condition for equation
-        l (Callable): left boundary condition
-        r (Callable): right boundary condition
-        x_int (list or n.array): x interval
-        t_int (list or n.array): t interval
-        D (int): diffusion constant
-        h (float): step size in x-direction
-        k (float): step size in t-direction
-        m
-        n
-        """
-
-    def __init__(self, D, f, l, r, M, N, x_int, t_int, h=1, k=1):
+class HeatEquation:
+    def __init__(self, D, f, l, r, x_int, t_int):
         self.D = D
         self.f = f
         self.l = l
         self.r = r
         self.x_int = x_int
         self.t_int = t_int
+
+class HeatSolve:
+
+    def __init__(self, equation, M, N):
+        self.eq = equation
         self.m = M - 1
         self.n = N
-        self.h = h
-        self.k = k
+        self.h = None
+        self.k = None
 
 
     def create_solution_matrix(self):
