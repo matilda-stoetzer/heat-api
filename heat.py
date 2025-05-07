@@ -1,7 +1,5 @@
 # API:t
 import numpy as np
-import matplotlib.pyplot as plt
-
 
 class HeatEquation:
     """
@@ -75,9 +73,7 @@ class ForwardDiff:
 
 
     def create_solution_matrix(self) -> np.ndarray:
-        """Creates an (m x n+1) np.array filled with zeros, the solution matrix.
-        Parameters:
-            None
+        """Creates an (M-1) x (N+1) np.array filled with zeros, the solution matrix.
         Returns:
             w (np.array): the solution matrix"""
         w = np.zeros((self.m, self.n + 1))
@@ -113,7 +109,7 @@ class ForwardDiff:
         """Takes one step with the forward difference method. Returns the updated solution matrix.
         Parameters:
             w (np.array): solution matrix to update
-            j (int): current column of solutin matrix
+            j (int): current column of solution matrix
         Returns:
             updated solution matrix"""
 
@@ -130,8 +126,6 @@ class ForwardDiff:
     def solve(self) -> np.ndarray:
         """Solves the equation using forward differences. Initializes the solution matrix, 
         sets the initial conditions and updates the solution. Inserts the boundary values.
-        Parameters:
-            None
         Returns:
             w_comp (n.array): complete solution"""
         w = self.create_solution_matrix()
@@ -148,4 +142,5 @@ class ForwardDiff:
         w_comp[-1, :] = self.boundary_condition(self.eq.r)
         
         return w_comp
-
+    
+    
