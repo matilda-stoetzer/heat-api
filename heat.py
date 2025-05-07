@@ -46,6 +46,7 @@ class HeatEquation:
         boundary_condition = g(t_points)
         return boundary_condition
 
+
 class ForwardDiff:
     """Class that solves the heat equation with the forward difference method.
     
@@ -86,12 +87,12 @@ class ForwardDiff:
         self.h = (self.eq.x_int[1] - self.eq.x_int[0]) / (self.m + 1)
         self.k = (self.eq.t_int[1] - self.eq.t_int[0]) / (self.n)
 
-    def _initial_condition(self):
+    def initial_condition(self):
         x_points = self.eq.x_int[0] + np.arange(1, self.m+1) * self.h
         inital_condition = self.eq.initial_condition(x_points)
         return inital_condition
 
-    def _boundary_condition(self, g):
+    def boundary_condition(self, g):
         t_points = self.eq.t_int[0] + np.arange(self.n+1) * self.k
         boundary_condition = self.eq.boundary_condition(g, t_points)
         return boundary_condition
@@ -116,8 +117,8 @@ class ForwardDiff:
         Returns:
             updated solution matrix"""
 
-        left_side = self._boundary_condition(self.eq.l)
-        right_side = self._boundary_condition(self.eq.r)
+        left_side = self.boundary_condition(self.eq.l)
+        right_side = self.boundary_condition(self.eq.r)
 
         v = np.concatenate(([left_side[j]], np.zeros(self.m - 2), [right_side[j]]))
         sigma = self._sigma()
@@ -136,49 +137,15 @@ class ForwardDiff:
         w = self.create_solution_matrix()
         self._update_step_size()
 
-        w[:,0] = self._initial_condition()
+        w[:,0] = self.initial_condition()
 
         for j in range(self.n):
             w[:, j+1] = self.one_step(w, j)
 
         w_comp = np.zeros((self.m + 2, self.n+1))
-        w_comp[0, :] = self._boundary_condition(self.eq.l)
+        w_comp[0, :] = self.boundary_condition(self.eq.l)
         w_comp[1:-1, :] = w
-        w_comp[-1, :] = self._boundary_condition(self.eq.r)
+        w_comp[-1, :] = self.boundary_condition(self.eq.r)
         
         return w_comp
-
-    
-def main():
-    D = 1
-    f = lambda x: np.sin(2*np.pi*x)**2
-    l = lambda t: 0*t
-    r = lambda t: 0*t
-
-    x = np.array([0, 1])
-    t = np.array([0, 0.5])
-    heat_equation = HeatEquation(D, f, l, r, x, t)
-
-    M = 10
-    N = 100
-    solver = ForwardDiff(heat_equation, M, N)
-    solution = solver.solve()
-
-    x = np.linspace(x[0], x[1], solver.m + 2)
-    t = np.linspace(t[0], t[1], solver.n + 1)
-    T, X = np.meshgrid(t, x)
-
-    # 3D plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, T, solution, cmap='viridis')
-    ax.set_xlabel('x')
-    ax.set_ylabel('t')
-    ax.set_zlim(-0.5, 1)
-    ax.view_init(30, 60)
-    plt.show()
-
-
-if __name__ == '__main__':
-    main()
 
