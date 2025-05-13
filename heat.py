@@ -5,8 +5,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class Person:
-    pass
 
 class HeatEquation:
     """
@@ -31,24 +29,7 @@ class HeatEquation:
             x_int (list) : interval for the x variable
             t_int (list) : interval for the t variable
         """
-        if not isinstance(D, int):
-            raise TypeError('D must be an integer.')
-        if not callable(f):
-            raise TypeError('The initial condition must be of type callable.')
-        if not callable(l):
-            raise TypeError('The boundary condition must be of type callable.')
-        if not callable(r):
-            raise TypeError('The boundary condition must be of type callable.')
-        if not isinstance(x_int, (list, np.ndarray)):
-            raise TypeError('The x interval must be a list or numpy array.')
-            if isinstance(x_int, np.ndarray):
-                if x_int.ndim != 1:
-                    raise ValueError('x_int mus be a 1-D numpy array.')
-        if not isinstance(t_int, (list, np.ndarray)):
-            raise TypeError('The t interval must be a list or numpy array.')
-            if isinstance(t_int, np.ndarray):
-                if t_int.ndim != 1:
-                    raise ValueError('t_int mus be a 1-D numpy array.')
+        self._validate_attributes(D, f, l, r, x_int, t_int)
         
         self.D = D
         self.f = f
@@ -56,6 +37,8 @@ class HeatEquation:
         self.r = r
         self.x_int = x_int
         self.t_int = t_int
+
+# public methods
 
     def create_init_cond_array(self, x_points: np.ndarray) -> np.ndarray:
         """Method that creates a numerical value for the initial condition evaluetaed in points x-points.
@@ -83,6 +66,32 @@ class HeatEquation:
         
         boundary_condition = g(t_points)
         return boundary_condition
+    
+# private methods 
+
+    def _validate_attributes(self, D, f, l, r, x_int, t_int):
+        if not isinstance(D, int):
+            raise TypeError('D must be an integer.')
+        elif D <= 0:
+            raise ValueError('D must be a positive number.')
+        if not callable(f):
+            raise TypeError('The initial condition must be of type callable.')
+        if not callable(l):
+            raise TypeError('The boundary condition must be of type callable.')
+        if not callable(r):
+            raise TypeError('The boundary condition must be of type callable.')
+        if not isinstance(x_int, (list, np.ndarray)):
+            if isinstance(x_int, np.ndarray):
+                if x_int.ndim != 1:
+                    raise ValueError('x_int mus be a 1-D numpy array.')
+            else:
+                raise TypeError('The x interval must be a list or numpy array.')
+        if not isinstance(t_int, (list, np.ndarray)):
+            if isinstance(t_int, np.ndarray):
+                if t_int.ndim != 1:
+                    raise ValueError('t_int mus be a 1-D numpy array.')
+            else:
+                raise TypeError('The t interval must be a list or numpy array.')
 
 
 class ForwardDiff:
@@ -108,23 +117,16 @@ class ForwardDiff:
             h (float) : step size in the x-direction
             k (float) : step size in the t-direction
         """
-        if not isinstance(equation, HeatEquation):
-            raise TypeError('equation must be an instance of class HeatEquation.')
-        if not isinstance(M, int):
-            raise TypeError('M must be an integer.')
-        if not isinstance(N, int):
-            raise TypeError('N must be an integer.')
+        self._validate_attributes(equation, M, N)
         
         self.eq = equation
         self.m = M - 1
         self.n = N
+        
         if self.h == None:
             self._update_step_size()
 
-    def _update_step_size(self):
-        self.h = (self.eq.x_int[1] - self.eq.x_int[0]) / (self.m + 1)
-        self.k = (self.eq.t_int[1] - self.eq.t_int[0]) / (self.n)
-
+# public methods
 
     def create_solution_matrix(self) -> np.ndarray:
         """Creates the solution matrix, an (M-1) x (N+1) np.array filled with zeros.
@@ -132,13 +134,8 @@ class ForwardDiff:
             w (np.array): the solution matrix"""
         w = np.zeros((self.m, self.n + 1))
         return w
-
-    def _initial_condition(self):
-        """Methods that creates a numpy array with initial values."""
-        x_points = self.eq.x_int[0] + np.arange(1, self.m+1) * self.h
-        inital_condition = self.eq.create_init_cond_array(x_points)
-        return inital_condition
     
+
     def add_initial_condition(self, w: np.ndarray) -> np.ndarray:
         """Adds the initial condition as a column vector to the solution matrix.
         Parameters:
@@ -150,12 +147,8 @@ class ForwardDiff:
 
         w[:,0] = self._initial_condition()
         return w
-
-    def _boundary_condition(self, g):
-        t_points = self.eq.t_int[0] + np.arange(self.n+1) * self.k
-        boundary_condition = self.eq.create_bound_cond_array(g, t_points)
-        return boundary_condition
     
+
     def add_boundary_conditions(self, w: np.ndarray) -> np.ndarray:
         """Expands the solution matrix and adds the left and right boundary conditions as first and last column.
         Parameters:
@@ -172,18 +165,7 @@ class ForwardDiff:
 
         return w_comp
     
-    def _sigma(self):
-        sigma = self.eq.D * self.k / (self.h ** 2)
-        return sigma
 
-    def _coefficent_matrix(self): 
-        sigma = self._sigma()
-        main_diagonal = (1 - 2*sigma)*np.ones(self.m)
-        super_diagonal = sigma * np.ones(self.m - 1)
-
-        A = np.diag(main_diagonal) + np.diag(super_diagonal, 1) + np.diag(super_diagonal, -1)
-        return A
-    
     def one_step(self, w: np.ndarray, j: int) -> np.ndarray:
         """Takes one step with the forward difference method. Returns the updated solution matrix.
         Parameters:
@@ -205,6 +187,7 @@ class ForwardDiff:
         A = self._coefficent_matrix()
         return A @ w[:, j] + b
 
+
     def solve(self) -> np.ndarray:
         """Solves the equation using forward differences. Initializes the solution matrix, 
         sets the initial conditions and updates the solution. Inserts the boundary values.
@@ -220,6 +203,50 @@ class ForwardDiff:
         w_comp = self.add_boundary_conditions(w)
         
         return w_comp
+    
+
+# private methods
+
+    def _validate_attributes(self, equation, M, N):
+        if not isinstance(equation, HeatEquation):
+            raise TypeError('equation must be an instance of class HeatEquation.')
+        if not isinstance(M, int):
+            raise TypeError('M must be an integer.')
+        if not isinstance(N, int):
+            raise TypeError('N must be an integer.')
+
+    def _update_step_size(self):
+        self.h = (self.eq.x_int[1] - self.eq.x_int[0]) / (self.m + 1)
+        self.k = (self.eq.t_int[1] - self.eq.t_int[0]) / (self.n)
+
+
+    def _initial_condition(self):
+        """Methods that creates a numpy array with initial values."""
+        x_points = self.eq.x_int[0] + np.arange(1, self.m+1) * self.h
+        inital_condition = self.eq.create_init_cond_array(x_points)
+        return inital_condition
+    
+    
+    def _boundary_condition(self, g):
+        t_points = self.eq.t_int[0] + np.arange(self.n+1) * self.k
+        boundary_condition = self.eq.create_bound_cond_array(g, t_points)
+        return boundary_condition
+    
+    
+    def _sigma(self):
+        sigma = self.eq.D * self.k / (self.h ** 2)
+        return sigma
+
+
+    def _coefficent_matrix(self): 
+        sigma = self._sigma()
+        main_diagonal = (1 - 2*sigma)*np.ones(self.m)
+        super_diagonal = sigma * np.ones(self.m - 1)
+
+        A = np.diag(main_diagonal) + np.diag(super_diagonal, 1) + np.diag(super_diagonal, -1)
+        return A
+    
+    
     
 
 def main():
