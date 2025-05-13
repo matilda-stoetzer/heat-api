@@ -7,12 +7,12 @@ A small API that provides functions for solving the 1D heat equation using forwa
 Once installed, the API can be used to create an instance of the class HeatEquation to represent the equation to be solved. Then the class ForwardDiff can be used to solve the equation numerically with forward differences.
 ### Example
 To solve the equation:
-$`\begin{cases}
+$$`\begin{cases}
 \frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0 \\
 u(0,t)=0 \\
 u(1,t)=0 \\
 u(x,0)=2\sin(2\pi t)
-\end{cases}`$
+\end{cases}`$$
 first create an instance of the heat equation class:
 ```python
 from heat import *
