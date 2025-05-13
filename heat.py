@@ -5,6 +5,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+class Person:
+    pass
+
 class HeatEquation:
     """
     Class that represents a heat equation.
@@ -28,6 +31,25 @@ class HeatEquation:
             x_int (list) : interval for the x variable
             t_int (list) : interval for the t variable
         """
+        if not isinstance(D, int):
+            raise TypeError('D must be an integer.')
+        if not callable(f):
+            raise TypeError('The initial condition must be of type callable.')
+        if not callable(l):
+            raise TypeError('The boundary condition must be of type callable.')
+        if not callable(r):
+            raise TypeError('The boundary condition must be of type callable.')
+        if not isinstance(x_int, (list, np.ndarray)):
+            raise TypeError('The x interval must be a list or numpy array.')
+            if isinstance(x_int, np.ndarray):
+                if x_int.ndim != 1:
+                    raise ValueError('x_int mus be a 1-D numpy array.')
+        if not isinstance(t_int, (list, np.ndarray)):
+            raise TypeError('The t interval must be a list or numpy array.')
+            if isinstance(t_int, np.ndarray):
+                if t_int.ndim != 1:
+                    raise ValueError('t_int mus be a 1-D numpy array.')
+        
         self.D = D
         self.f = f
         self.l = l
@@ -41,6 +63,10 @@ class HeatEquation:
             x_points (np.ndarray) : a numpy array with points in the x-direction
         Returns:
             initial_condition (np.ndarray) : a numpy array with values for the initial condition"""
+        
+        if not isinstance(x_points, (list, np.ndarray)):
+            raise TypeError('The x interval must be a list or numpy array.')
+        
         inital_condition = self.f(x_points)
         return inital_condition
 
@@ -50,6 +76,11 @@ class HeatEquation:
             t_points (np.ndarray) : a numpy array with points in the t-direction
         Returns:
             boundary_condition (np.ndarray) : a numpy array with values for the boundary condition"""
+        if not callable(g):
+            raise TypeError('The boundary condition must be of type callable.')
+        if not isinstance(t_points, (list, np.ndarray)):
+            raise TypeError('t_points must be a list.')
+        
         boundary_condition = g(t_points)
         return boundary_condition
 
@@ -77,6 +108,13 @@ class ForwardDiff:
             h (float) : step size in the x-direction
             k (float) : step size in the t-direction
         """
+        if not isinstance(equation, HeatEquation):
+            raise TypeError('equation must be an instance of class HeatEquation.')
+        if not isinstance(M, int):
+            raise TypeError('M must be an integer.')
+        if not isinstance(N, int):
+            raise TypeError('N must be an integer.')
+        
         self.eq = equation
         self.m = M - 1
         self.n = N
@@ -107,6 +145,9 @@ class ForwardDiff:
             w (np.ndarray) : solution matrix without initial values
         Returns:
             w (np.ndarray) : solution matrix with added initial condition"""
+        if not isinstance(w, np.ndarray):
+            raise TypeError('w must be an numpy array.')
+
         w[:,0] = self._initial_condition()
         return w
 
@@ -121,6 +162,9 @@ class ForwardDiff:
             w (np.ndarray) : solution matrix with solution
         Returns:
             w_comp (np.ndarray) : expanded solution matrix with added boundary conditions"""
+        if not isinstance(w, np.ndarray):
+            raise TypeError('w must be an numpy array.')
+
         w_comp = np.zeros((self.m + 2, self.n+1))
         w_comp[0, :] = self._boundary_condition(self.eq.l)
         w_comp[1:-1, :] = w
@@ -147,6 +191,10 @@ class ForwardDiff:
             j (int): current column of solution matrix
         Returns:
             updated solution matrix"""
+        if not isinstance(w, np.ndarray):
+            raise TypeError('w must be an numpy array.')
+        if not isinstance(j, int):
+            raise TypeError('j must be an integer.')
 
         left_side = self._boundary_condition(self.eq.l)
         right_side = self._boundary_condition(self.eq.r)
@@ -175,33 +223,26 @@ class ForwardDiff:
     
 
 def main():
-    D = 1
-    f = lambda x: np.sin(2*np.pi*x)**2
-    l = lambda t: 0*t
-    r = lambda t: 0*t
+    test = HeatEquation(
+        D=1,
+        f=lambda x: 3*x,
+        l=lambda t: 3*t,
+        r=lambda t: 3*t,
+        x_int=[0, 1, 4, 5, 6],
+        t_int=[0, 1]
+    )
 
-    x = np.array([0, 1])
-    t = np.array([0, 0.5])
-    heat_equation = HeatEquation(D, f, l, r, x, t)
+    solver = ForwardDiff(
+        equation=test,
+        M=10,
+        N=100
+    )
 
-    M = 10
-    N = 100
-    solver = ForwardDiff(heat_equation, M, N)
-    solution = solver.solve()
+    solver.solve()
+    w = solver.create_solution_matrix()
+    solver.add_boundary_conditions(w)
 
-    x = np.linspace(x[0], x[1], solver.m + 2)
-    t = np.linspace(t[0], t[1], solver.n + 1)
-    T, X = np.meshgrid(t, x)
-
-    # 3D plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(X, T, solution, cmap='viridis')
-    ax.set_xlabel('x')
-    ax.set_ylabel('t')
-    ax.set_zlim(-0.5, 1)
-    ax.view_init(30, 60)
-    plt.show()
+    
 
 if __name__ == '__main__':
     main()
