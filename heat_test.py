@@ -22,7 +22,7 @@ def example_solver(example_equation):
     )
 
 
-class TestHe:
+class TestHeatEq:
     def test_attributes(self, example_equation):
         """Tests that the attributes is the right data type."""
         
@@ -47,7 +47,7 @@ class TestHe:
 
 
 class TestForwDiff:
-    def test_dimension_sol_matrix(self, example_solver):
+    def test_dim_sol_matrix_correct(self, example_solver):
         """Tests that the dimension of the solution matrix is (M-1) x (N+1)."""
         
         solution_matrix = example_solver.create_solution_matrix()
