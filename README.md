@@ -27,7 +27,7 @@ To solve the equation:
 \frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0 \\
 u(0,t)=0 \\
 u(1,t)=0 \\
-u(x,0)=2\sin(2\pi t)
+u(x,0)=\sin^2(2\pi x)
 \end{cases}
 ```
 
@@ -38,11 +38,11 @@ from heat import *
 
 equation = HeatEquation(
 	D=1,
-	f=lambda x: 2*np.sin(2*np.pi*x),
+	f=lambda x: np.sin(2*np.pi*x)**2,
 	l=lambda t: 0*t,
 	r=lambda t: 0*t,
 	x_int=[0,1],
-	t_int=[0,1]
+	t_int=[0,0.5]
 )
 ```
 
@@ -62,7 +62,9 @@ Solve the equation and store the solution in a variable called solution:
 solution = solver.solve()
 ```
 
-## Dependencies
+The solution can then be visualized using matplotlib.pyplot for example. For details, se the [example file](example_usage.py).
+
+### Dependencies
 
 This API uses NumPy to handle matrix operations. In order to use the API, NumPy must be installed. 
 To install NumPy, run the following code in your terminal:
