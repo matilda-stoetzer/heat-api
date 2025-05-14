@@ -1,10 +1,15 @@
-# Heat equation solver
-## API for solving the 1D heat equation
-A small API that provides functions for solving the 1D heat equation using forward differences numerical method.
+# Heat Equation Solver
+## Overview
+A small API that provides functions for solving the 1D heat equation using forward difference methods.
 ## Installation
-
+To install the package locally, run the following code in your terminal:
+```
+git clone https://gits-15.sys.kth.se/grudat25/stoetzer-ovn7
+cd stoetzer-ovn7
+pip install .
+```
 ## Usage
-Once installed, the API can be used to create an instance of the class HeatEquation to represent the equation to be solved. Then the class ForwardDiff can be used to solve the equation numerically with forward differences.
+Once installed, the API can be used to create an instance of the class `HeatEquation` to represent the equation to be solved. Then the class `ForwardDiff` is used to solve the equation numerically with forward differences.
 ### Example
 To solve the equation:
 ```math
@@ -36,12 +41,16 @@ solver = ForwardDiff(
 	N=100,
 )
 ```
-Solve the equation and store the solution in variable solution:
+Solve the equation and store the solution in a variable called solution:
 ```python
 solution = solver.solve()
 ```
-
 ## Dependencies
-This API uses Numpy to handle matrix operations. In order to use the API, Numpy must be installed. More about Numpy: [numpy.org](https://numpy.org).
+This API uses NumPy to handle matrix operations. In order to use the API, NumPy must be installed. 
+To install NumPy, run the following code in your terminal:
+````
+pip install numpy
+````
+More about Numpy: [numpy.org](https://numpy.org).
 
 
