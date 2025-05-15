@@ -24,7 +24,7 @@ To solve the equation:
 
 ```math
 \begin{cases}
-\frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0, & 0\leq x\leq 1, 0\leq t\leq 1\\
+\frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0, & 0\leq x\leq 1, \quad 0\leq t\leq 1\\
 u(0,t)=0, \space u(1,t)=0& 0\leq t\leq 1\\
 u(x,0)=2\sin(2\pi t), & 0\leq x\leq 1
 \end{cases}
