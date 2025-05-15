@@ -24,10 +24,10 @@ To solve the equation:
 
 ```math
 \begin{cases}
-\frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0 \\
-u(0,t)=0 \\
-u(1,t)=0 \\
-u(x,0)=\sin^2(2\pi x)
+\frac{\partial u}{\partial t}-\frac{\partial^{2}u}{\partial x^{2}}=0, \quad 0\leq x\leq 1, \quad 0\leq t\leq 1\\
+u(0,t)=0, \quad 0\leq t\leq 1\\
+u(1,t)=0, \quad 0\leq t\leq 1\\
+u(x,0)=2\sin(2\pi t), \quad 0\leq x\leq 1
 \end{cases}
 ```
 
@@ -73,7 +73,7 @@ To install NumPy, run the following code in your terminal:
 pip install numpy
 ````
 
-More about Numpy: [numpy.org](https://numpy.org).
+More about NumPy: [numpy.org](https://numpy.org).
 
 ### License
 
