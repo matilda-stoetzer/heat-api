@@ -9,8 +9,8 @@ example_eq = HeatEquation(
     f=lambda x: np.sin(2*np.pi*x)**2,
     l=lambda t: 0*t,
     r=lambda t: 0*t,
-    x_int=[0,1],
-    t_int=[0,0.5]
+    x_int=np.array([0,1]),
+    t_int=np.array([0,0.5])
 )
 
 # create the solver
