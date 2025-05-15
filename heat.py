@@ -10,10 +10,10 @@ class HeatEquation:
         f (callable) : initial condition
         l (callable) : left boundary condition
         r (callable) : right boundary condition
-        x_int (list) : interval for the x variable
-        t_int (list) : interval for the t variable
+        x_int (np.ndarray) : interval for the x variable
+        t_int (np.ndarray) : interval for the t variable
     """
-    def __init__(self, D: int, f: callable, l: callable, r: callable, x_int: list, t_int: list):
+    def __init__(self, D: int, f: callable, l: callable, r: callable, x_int: np.ndarray, t_int: np.ndarray):
         """Initializes an instance of class HeatEquation with attributes.
         
         Attributes:
@@ -21,10 +21,11 @@ class HeatEquation:
             f (callable) : initial condition
             l (callable) : left boundary condition
             r (callable) : right boundary condition
-            x_int (list) : interval for the x variable
-            t_int (list) : interval for the t variable
+            x_int (np.ndarray) : interval for the x variable
+            t_int (np.ndarray) : interval for the t variable
         """
-        self._validate_attributes(D, f, l, r, x_int, t_int)
+        self._validate_attribute_types(D, f, l, r, x_int, t_int)
+        self._validate_attribute_values(D, x_int, t_int)
         
         self.D = D
         self.f = f
@@ -42,11 +43,12 @@ class HeatEquation:
         Returns:
             initial_condition (np.ndarray) : a numpy array with values for the initial condition"""
         
-        if not isinstance(x_points, (list, np.ndarray)):
-            raise TypeError('The x interval must be a list or numpy array.')
+        if not isinstance(x_points, (np.ndarray)):
+            raise TypeError('The x interval must be a numpy array.')
         
         inital_condition = self.f(x_points)
         return inital_condition
+
 
     def create_bound_cond_array(self, g: callable, t_points: np.ndarray) -> np.ndarray:
         """Method that evaluates the boundary condition function in a point t and returns the value.
@@ -57,38 +59,46 @@ class HeatEquation:
         
         if not callable(g):
             raise TypeError('The boundary condition must be of type callable.')
-        if not isinstance(t_points, (list, np.ndarray)):
-            raise TypeError('t_points must be a list.')
+        if not isinstance(t_points, (np.ndarray)):
+            raise TypeError('t_points must be a numpy array.')
         
         boundary_condition = g(t_points)
         return boundary_condition
     
 # --- private methods ---
 
-    def _validate_attributes(self, D, f, l, r, x_int, t_int):
-        """Validates the data input."""
+    def _validate_attribute_types(self, D: int, f: callable, l: callable, r: callable, x_int: np.ndarray, t_int: np.ndarray):
+        """Checks the data types of the parameters passed to the class. Raises TypeError if wrong data type."""
         if not isinstance(D, int):
             raise TypeError('D must be an integer.')
-        elif D <= 0:
-            raise ValueError('D must be a positive number.')
         if not callable(f):
             raise TypeError('The initial condition must be of type callable.')
         if not callable(l):
             raise TypeError('The boundary condition must be of type callable.')
         if not callable(r):
             raise TypeError('The boundary condition must be of type callable.')
-        if not isinstance(x_int, (list, np.ndarray)):
-            if isinstance(x_int, np.ndarray):
-                if x_int.ndim != 1:
-                    raise ValueError('x_int mus be a 1-D numpy array.')
-            else:
-                raise TypeError('The x interval must be a list or numpy array.')
-        if not isinstance(t_int, (list, np.ndarray)):
-            if isinstance(t_int, np.ndarray):
-                if t_int.ndim != 1:
-                    raise ValueError('t_int mus be a 1-D numpy array.')
-            else:
-                raise TypeError('The t interval must be a list or numpy array.')
+        if not isinstance(x_int, np.ndarray):
+            raise TypeError('The x interval must be a numpy array.')
+        if not isinstance(t_int, np.ndarray):
+            raise TypeError('The t interval must be a numpy array.')
+     
+    def _validate_attribute_values(self, D: int, x_int: np.ndarray, t_int: np.ndarray):
+        """Check if interval for x and t is correct, e.g. first element smaller than first (and only positive elements?)."""
+        if D <= 0:
+            raise ValueError('D must be a positive number.')
+        if x_int.ndim != 1:
+            raise ValueError('x_int mus be a 1-D numpy array.')
+        if t_int.ndim != 1:
+            raise ValueError('t_int mus be a 1-D numpy array.')
+        if x_int.size > 2:
+            raise ValueError('x_int must be of size 2.')
+        if t_int.size > 2:
+            raise ValueError('t_int must be of size 2.')
+        if x_int[1] < x_int[0]:
+            raise ValueError('Enter correct interval for x, e.g. second element should be larger than first.')
+        if t_int[1] < t_int[0]:
+            raise ValueError('Enter correct interval for t, e.g. second element should be larger than first.')
+        
 
 
 class ForwardDiff:
@@ -111,8 +121,6 @@ class ForwardDiff:
             eq (HeatEquation) : an instance of the class HeatEquation
             m (int) : dimension of the solution matrix
             n (int) : dimension of the time vector
-            h (float) : step size in the x-direction
-            k (float) : step size in the t-direction
         """
         self._validate_attributes(equation, M, N)
         
@@ -204,58 +212,60 @@ class ForwardDiff:
 
         w_comp = self.add_boundary_conditions(w)
         return w_comp
-    
+
 
 # --- private methods ---
 
-    def _validate_attributes(self, equation, M, N):
-        """Validates the data input."""
+    def _validate_attributes(self, equation: HeatEquation, M: int, N: int):
+        """Checks the data types of the parameters passed to the class. Raises TypeError if wrong data type."""
         if not isinstance(equation, HeatEquation):
             raise TypeError('equation must be an instance of class HeatEquation.')
         if not isinstance(M, int):
             raise TypeError('M must be an integer.')
+        if M <= 0:
+            raise ValueError('M must be a positive.')
         if not isinstance(N, int):
             raise TypeError('N must be an integer.')
+        if N <= 0:
+            raise ValueError('N must be positive.')
 
     def _update_step_size(self):
-        """Updates the step sizes h for space and t for time."""
+        """Updates the step sizes h for space and t for time once when an instance of the class is created."""
         self.h = (self.eq.x_int[1] - self.eq.x_int[0]) / (self.m + 1)
         self.k = (self.eq.t_int[1] - self.eq.t_int[0]) / (self.n)
 
     def _check_num_stability(self):
-        """Checks that the step-sizes guarantee a numerically stable solution."""
+        """Checks that the step sizes guarantee a numerically stable solution, using theorem for 
+        numerical stability for forward difference method. Displays waring if condition for stability is not met."""
         constant = (self.eq.D * self.k) / (self.h ** 2)
         if constant < (1/2):
             return
         else:
             print('Choose different values for M and/or N to ensure numerical stability.')
 
-
     def _initial_condition(self):
         """Creates a numpy array with initial values."""
         x_points = self.eq.x_int[0] + np.arange(1, self.m+1) * self.h
         inital_condition = self.eq.create_init_cond_array(x_points)
         return inital_condition
-    
-    
-    def _boundary_condition(self, g):
+
+    def _boundary_condition(self, g: callable):
         """Creates a numpy array with boundary values."""
         t_points = self.eq.t_int[0] + np.arange(self.n+1) * self.k
         boundary_condition = self.eq.create_bound_cond_array(g, t_points)
         return boundary_condition
-    
-    
+
     def _sigma(self):
+        """Calculates the coefficent sigma used in the coefficent matrix."""
         sigma = self.eq.D * self.k / (self.h ** 2)
         return sigma
 
-
     def _coefficent_matrix(self):
-        """Creates the coefficent matrix, that is later multiplied with the solution matrix in every step."""
+        """Creates the coefficent matrix, that is later multiplied with the solution matrix 
+        in every step in the t direction."""
         sigma = self._sigma()
         main_diagonal = (1 - 2*sigma)*np.ones(self.m)
         super_diagonal = sigma * np.ones(self.m - 1)
 
         A = np.diag(main_diagonal) + np.diag(super_diagonal, 1) + np.diag(super_diagonal, -1)
         return A
-
