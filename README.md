@@ -61,7 +61,11 @@ Solve the equation and store the solution in a variable called solution:
 solution = solver.solve()
 ```
 
-The solution can then be visualized using matplotlib.pyplot for example. For details, se the [example file](example_usage.py).
+The solution can then be visualized using matplotlib.pyplot for example. 
+
+![example](example.png)
+
+For more details, se the [example file](example_usage.py).
 
 ### Dependencies
 
