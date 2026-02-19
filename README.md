@@ -9,8 +9,8 @@ A small API that provides functions for numerically solving the 1D heat equation
 To install the package locally, run the following code in your terminal:
 
 ```
-git clone https://gits-15.sys.kth.se/grudat25/stoetzer-ovn7
-cd stoetzer-ovn7
+git clone https://github.com/matilda-stoetzer/heat-api.git
+cd heat-api
 pip install .
 ```
 
