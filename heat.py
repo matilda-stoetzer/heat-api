@@ -1,4 +1,3 @@
-# Matilda Stoetzer, grudat25, individuellt projekt
 import numpy as np
 
 class HeatEquation:
